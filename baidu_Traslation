@@ -1,0 +1,47 @@
+# -*- coding:utf-8 -*-
+''''
+author: Qi_Han
+'''
+import requests
+word ='apple'
+def get_word_info(query_string,file_name='CET6NewWods'):
+    headers={"User-Agent":"Mozilla/5.0 (Linux; Android 5.1.1; Nexus 6 Build/LYZ28E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Mobile Safari/537.36"}
+    post_url = "http://fanyi.baidu.com/basetrans"
+    post_data = {
+        "query":query_string,
+        "from":"en",
+        "to":"zh"
+    }
+
+    response = requests.post(post_url,data=post_data,headers=headers)
+    data = response.json()['trans'][0]['dst']
+    data_means_all = response.json()['dict']["word_means"]
+    data_Phonogram_am = response.json()['dict']['symbols'][0]['ph_am']
+    data_Phonogram_en = response.json()['dict']['symbols'][0]['ph_en']
+    print(query_string)
+    print('音标（英）:[',data_Phonogram_en,'] 音标（美）:[',data_Phonogram_en,']')
+    print("主要解释：",data)
+    print("全部解释：", end=' ')
+    for every in data_means_all:
+        print(every, end=' ')
+
+    with open('%s.txt' % file_name, 'a+', encoding='utf-8') as f:
+        f.write('\n'+query_string + '\n')
+        f.write(u"音标（英）:["+ data_Phonogram_en+ u"] 音标（美）:["+ data_Phonogram_en+"]\n")
+        f.write(u"主要解释："+ data + '\n')
+        f.write(u"全部解释：")
+        for every in data_means_all:
+            f.write(every)
+        f.write('\n')
+
+
+def words_to_traslate():
+    with open('wordlist.txt','r') as f:
+        for word in f:
+            try:
+                get_word_info(word.strip())
+            except Exception as e:
+                print(e)
+
+
+words_to_traslate()
